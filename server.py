@@ -1,12 +1,14 @@
-from flask import Flask, send_file, request, jsonify
-
 from flask import Flask, send_file, request
 import pandas as pd
-import numpy as np
 import random
 import io
 
 app = Flask(__name__)
+
+# Ruta principal para verificar que el servidor funciona
+@app.route("/")
+def home():
+    return "Servidor UPSS funcionando correctamente"
 
 def generar_dato():
     tipos = ["Ecógrafo","Rayos X","Tomógrafo","Resonancia","Densitómetro","Fluoroscopía"]
@@ -37,7 +39,6 @@ def generar_dato():
         "Uptime (hrs)": random.randint(1000,4000),
         "Downtime (hrs)": random.randint(0,200),
         "Costo Soles": random.randint(500,5000),
-        # Datos del incidente
         "Incidente": random.choice(incidentes),
         "Severidad": random.choice(riesgos),
         "Componente Afectado": random.choice(componentes),
@@ -48,7 +49,6 @@ def generar_dato():
 def generar_csv():
     cantidad = int(request.args.get("cantidad", 1000))
     filas = [generar_dato() for _ in range(cantidad)]
-
     df = pd.DataFrame(filas)
 
     output = io.BytesIO()
@@ -62,8 +62,7 @@ def generar_csv():
         download_name=f"dataset_upss_{cantidad}.csv"
     )
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
+# Render / Gunicorn NO usa this run block
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
